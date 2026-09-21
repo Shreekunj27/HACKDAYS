@@ -45,3 +45,27 @@ def get_llm_response(prompt: str = "Hello"):
     else:
         # TODO: Add real OpenAI API call here
         return {"error": "Live API not implemented yet"}
+
+
+
+
+    # --- STEP 4: DEMO SAFETY NET ---
+
+# Toggle this to False when you want to use the real APIs
+USE_MOCK_DATA = True
+
+@app.get("/carbon-data")
+def get_carbon_data():
+    if USE_MOCK_DATA:
+        return {"country": "Iceland", "renewable_percentage": "90%", "status": "Mock Data"}
+    else:
+        # TODO: Add real WattTime API call here later
+        return {"error": "Real Carbon API not implemented yet"}
+
+@app.get("/llm-response")
+def get_llm_response(prompt: str = ""):
+    if USE_MOCK_DATA:
+        return {"response": "This is a mock LLM response. The grid is currently clean in Iceland.", "status": "Mock Data"}
+    else:
+        # TODO: Add real OpenAI API call here later
+        return {"error": "Real LLM API not implemented yet"}
