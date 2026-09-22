@@ -21,6 +21,7 @@ from app.telemetry.summary import (
     baseline_totals,
     baseline_workflow_totals,
     compare_totals,
+    decision_simulated_totals,
     predicted_saving_from_decision,
 )
 from app.temporal.planner import plan_green_window
@@ -373,11 +374,14 @@ def static_vs_dynamic(workflow_id: str) -> dict:
     workflow = store.get_workflow(workflow_id)
     if not workflow:
         raise HTTPException(status_code=404, detail="workflow_not_found")
+
     runs = store.get_runs(workflow_id)
-    dynamic = actual_totals(runs)
+    decisions = store.get_decisions(workflow_id)
+    dynamic = actual_totals(runs) if runs else decision_simulated_totals(decisions, workflow)
     baseline = baseline_workflow_totals(workflow)
     if not baseline.get("steps"):
         baseline = baseline_totals(len(runs) or len(workflow.get("steps", [])))
+
     comparison = compare_totals(baseline, dynamic)
     comparison["replans"] = len([event for event in store.get_events(workflow_id) if event["type"] == "environment_change"])
     comparison["circuit_breaker_events"] = len([event for event in store.get_events(workflow_id) if event["type"] == "carbon_circuit_breaker"])

@@ -190,13 +190,14 @@ export default function Home() {
     const budget = workflow?.carbon_budget;
     const remaining = budget?.remaining_carbon_g ?? 0;
     const score = decision?.score ?? 0;
+    const replanCount = comparison?.replans ?? passport?.runtime_events?.length ?? 0;
     return {
       workflowStatus: workflow?.status || "not started",
       remainingCarbon: remaining,
       decisionScore: score,
-      replanCount: (workflow?.steps || []).filter((step: any) => step.status === "done").length,
+      replanCount,
     };
-  }, [workflow, decision]);
+  }, [workflow, decision, comparison, passport]);
 
   const candidateRows = decision?.feasible_candidates || [];
   const rejectedRows = decision?.rejected_candidates || [];
@@ -433,7 +434,7 @@ export default function Home() {
             <span>{comparison?.quality_check ? `quality: ${comparison.quality_check.dynamic_quality} / ${comparison.quality_check.baseline_quality}` : '-'}</span>
           </div>
           <div className="comparison-grid">
-            {comparison ? Object.entries(comparison.absolute_difference || {}).map(([key, value]: any) => (
+            {comparison && Object.keys(comparison.absolute_difference || {}).length > 0 ? Object.entries(comparison.absolute_difference || {}).map(([key, value]: any) => (
               <article key={key} className="comparison-item">
                 <strong>{key}</strong>
                 <span><b>Baseline</b><em>{comparison.baseline_totals?.[key]?.toFixed(4) ?? '-'}</em></span>

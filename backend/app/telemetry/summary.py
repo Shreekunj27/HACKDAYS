@@ -107,6 +107,49 @@ def baseline_totals(step_count: int, workflow: dict | None = None) -> dict:
     }
 
 
+def decision_simulated_totals(decisions: dict | None, workflow: dict | None) -> dict:
+    decisions = decisions or {}
+    workflow = workflow or {}
+    steps = workflow.get("steps", [])
+    if not steps:
+        return empty_totals()
+
+    totals = empty_totals()
+    qualities = []
+    for step in steps:
+        step_id = step.get("step_id")
+        decision = decisions.get(step_id) if step_id else None
+        candidate = decision.get("selected_candidate") if decision else None
+        if not candidate:
+            continue
+        totals["latency_ms"] += candidate.get("latency_ms", 0)
+        totals["cost_usd"] += candidate.get("cost_usd", 0.0)
+        totals["energy_wh"] += candidate.get("energy_wh", 0.0)
+        totals["carbon_g"] += candidate.get("carbon_g", 0.0)
+        qualities.append(candidate.get("accuracy", 0.0))
+
+    if not qualities:
+        selected = None
+        for decision in decisions.values():
+            selected = decision.get("selected_candidate")
+            if selected:
+                break
+        if selected:
+            totals["latency_ms"] += selected.get("latency_ms", 0)
+            totals["cost_usd"] += selected.get("cost_usd", 0.0)
+            totals["energy_wh"] += selected.get("energy_wh", 0.0)
+            totals["carbon_g"] += selected.get("carbon_g", 0.0)
+            qualities.append(selected.get("accuracy", 0.0))
+
+    totals["steps"] = len(steps)
+    totals["latency_ms"] = round(totals["latency_ms"])
+    totals["cost_usd"] = round(totals["cost_usd"], 6)
+    totals["energy_wh"] = round(totals["energy_wh"], 6)
+    totals["carbon_g"] = round(totals["carbon_g"], 6)
+    totals["quality"] = round(sum(qualities) / len(qualities), 4) if qualities else 0.0
+    return totals
+
+
 def compare_totals(baseline: dict, dynamic: dict) -> dict:
     absolute = {}
     percentage = {}
