@@ -1,0 +1,1 @@
+"""GreenPilot backend package."""

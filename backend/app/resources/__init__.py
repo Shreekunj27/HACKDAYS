@@ -1,0 +1,2 @@
+"""Resource and candidate registries."""
+

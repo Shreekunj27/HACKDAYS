@@ -1,0 +1,12 @@
+{
+  "name": "hackdays22",
+  "private": true,
+  "scripts": {
+    "dev": "concurrently -n backend,frontend -c green,blue \"npm run dev:backend\" \"npm run dev:frontend\"",
+    "dev:backend": "powershell -NoProfile -Command \"Set-Location backend; python -m uvicorn main:app --reload --host 127.0.0.1 --port 8000\"",
+    "dev:frontend": "npm --prefix frontend run dev"
+  },
+  "devDependencies": {
+    "concurrently": "^10.0.5"
+  }
+}
